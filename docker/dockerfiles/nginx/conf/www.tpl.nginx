@@ -1,0 +1,15 @@
+server {
+    listen      $PORT;
+    index       index.php;
+
+    location / {
+        try_files $uri $uri/ /index.php$is_args$args;
+    }
+
+    location ~ \.php$ {
+        root           /srv/www/public;
+        fastcgi_pass   $FPM_URL;
+        fastcgi_param  SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include        fastcgi_params;
+    }
+}

@@ -1,0 +1,33 @@
+version: '3.5'
+services:
+  fpm:
+    build: docker/dockerfiles/fpm
+    restart: always
+    volumes:
+      - ./config:/srv/www/config
+      - ./public:/srv/www/public
+      - ./src:/srv/www/src
+      - ./vendor:/srv/www/vendor
+    networks:
+      mynet:
+        aliases:
+          - fpm.mynet
+  nginx:
+    build: docker/dockerfiles/nginx
+    restart: always
+    depends_on:
+      - fpm
+    ports:
+      - "1080:80"
+    environment:
+      PORT: 80
+      FPM_URL: fpm.mynet:9000
+    networks:
+      mynet:
+        aliases:
+          - nginx.mynet
+
+networks:
+  mynet:
+    external:
+      name: mynet

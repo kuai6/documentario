@@ -1,0 +1,30 @@
+{
+    "name": "kuai6/documentario",
+    "description": "The document sores and edit service",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Aleksei Kuleshov",
+            "email": "kuai6@ya.ru"
+        }
+    ],
+    "require": {
+        "php": "~7.3.0",
+        "ext-phalcon": "~3.4.0",
+        "zircote/swagger-php": "~3.0.0"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^2.16",
+        "phalcon/devtools": "^3.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Application\\": "src/Application",
+            "Document\\": "src/Document"
+        }
+    },
+    "scripts": {
+        "cs-check": "php-cs-fixer -v fix --config=.php_cs  --dry-run --diff",
+        "cs-fix": "php-cs-fixer -v fix --config=.php_cs --diff"
+    }
+}
