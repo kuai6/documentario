@@ -1,7 +1,9 @@
 <?php
 
 $finder = PhpCsFixer\Finder::create()
+    ->in('./bin')
     ->in('./config')
+    ->in('./data/migrations')
     ->in('./public')
     ->in('./src');
 

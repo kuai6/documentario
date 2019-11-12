@@ -1,0 +1,65 @@
+#!/usr/bin/env php
+<?php
+declare(strict_types=1);
+
+use Doctrine\DBAL\DriverManager;
+use Doctrine\Migrations\Configuration\Configuration;
+use Doctrine\Migrations\Tools\Console\Command\DumpSchemaCommand;
+use Doctrine\Migrations\Tools\Console\Command\ExecuteCommand;
+use Doctrine\Migrations\Tools\Console\Command\GenerateCommand;
+use Doctrine\Migrations\Tools\Console\Command\LatestCommand;
+use Doctrine\Migrations\Tools\Console\Command\MigrateCommand;
+use Doctrine\Migrations\Tools\Console\Command\RollupCommand;
+use Doctrine\Migrations\Tools\Console\Command\StatusCommand;
+use Doctrine\Migrations\Tools\Console\Command\UpToDateCommand;
+use Doctrine\Migrations\Tools\Console\Command\VersionCommand;
+use Doctrine\Migrations\Tools\Console\Helper\ConfigurationHelper;
+use PackageVersions\Versions;
+use Symfony\Component\Console;
+use Symfony\Component\Console\Helper\QuestionHelper;
+
+
+require (__DIR__ . '/../vendor/autoload.php');
+
+// Set current directory to application root so we can find config files
+chdir(__DIR__ . '/..');
+try {
+    $cli = new Console\Application('Doctrine Migrations', Versions::getVersion('doctrine/migrations'));
+    $cli->setCatchExceptions(true);
+
+    $helperSet = new Console\Helper\HelperSet();
+    $helperSet->set(new QuestionHelper(), 'question');
+
+
+    $config = require __DIR__ . '/../config/application.config.php';
+
+    $connection = DriverManager::getConnection($config->database->toArray());
+
+    $configuration = new Configuration($connection);
+    $configuration->setMigrationsNamespace('Migrations');
+    $configuration->setMigrationsTableName('migrations');
+    $configuration->setMigrationsDirectory('data/migrations');
+
+    $helperSet->set(new ConfigurationHelper($connection, $configuration));
+    $cli->setHelperSet($helperSet);
+
+    $cli->addCommands([
+        new DumpSchemaCommand(),
+        new ExecuteCommand(),
+        new GenerateCommand(),
+        new LatestCommand(),
+        new MigrateCommand(),
+        new RollupCommand(),
+        new StatusCommand(),
+        new VersionCommand(),
+        new UpToDateCommand(),
+    ]);
+
+
+    // Run!
+    $cli->run();
+
+} catch (\Exception $e) {
+    echo $e->getMessage();
+    echo $e->getTraceAsString();
+}

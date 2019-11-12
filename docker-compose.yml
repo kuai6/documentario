@@ -3,8 +3,12 @@ services:
   fpm:
     build: docker/dockerfiles/fpm
     restart: always
+    depends_on:
+      - percona
     volumes:
+      - ./bin:/srv/www/bin
       - ./config:/srv/www/config
+      - ./data:/srv/www/data
       - ./public:/srv/www/public
       - ./src:/srv/www/src
       - ./vendor:/srv/www/vendor
@@ -26,7 +30,15 @@ services:
       mynet:
         aliases:
           - nginx.mynet
-
+  percona:
+    image: percona
+    environment:
+      MYSQL_ROOT_PASSWORD: Qwerty1!
+      MYSQL_DATABASE: documents
+    networks:
+      mynet:
+        aliases:
+          - percona.mynet
 networks:
   mynet:
     external:
