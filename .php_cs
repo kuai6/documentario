@@ -15,6 +15,7 @@ return PhpCsFixer\Config::create()
         'concat_space'           => ['spacing' => 'one'],
         'binary_operator_spaces' => ['default' => null],
         'yoda_style'             => null,
+        'no_superfluous_phpdoc_tags' => false,
     ])
     ->setUsingCache(false)
     ->setFinder($finder);

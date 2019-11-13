@@ -31,10 +31,12 @@ services:
         aliases:
           - nginx.mynet
   percona:
-    image: percona
+    image: mysql:8
     environment:
       MYSQL_ROOT_PASSWORD: Qwerty1!
       MYSQL_DATABASE: documents
+    ports:
+      - "3306:3306"
     networks:
       mynet:
         aliases:
