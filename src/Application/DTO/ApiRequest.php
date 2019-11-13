@@ -4,16 +4,12 @@ declare(strict_types=1);
 
 namespace Application\DTO;
 
-use OpenApi\Annotations as OA;
-
 /**
  * @OA\Schema(
- *     title="Api response schema"
+ *     title="Api request schema"
  * )
- *
- * Class ApiResponse
  */
-class ApiResponse
+class ApiRequest
 {
     /**
      * @OA\Property()
@@ -23,7 +19,7 @@ class ApiResponse
     public $document;
 
     /**
-     * ApiResponse constructor.
+     * ApiRequest constructor.
      *
      * @param Document $document
      */
@@ -33,12 +29,15 @@ class ApiResponse
     }
 
     /**
-     * @param \Document\Entity\Document $entity
+     * @param array $requestData
      *
-     * @return ApiResponse
+     * @return static
      */
-    public static function buildFromEntity(\Document\Entity\Document $entity)
+    public static function buildFromRequest(array $requestData): self
     {
-        return new self(Document::buildFromEntity($entity));
+        $doc = new Document();
+        $doc->payload = $requestData['payload'];
+
+        return new self($doc);
     }
 }

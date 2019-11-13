@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 namespace Application\Controller;
 
-use Application\Validator\DocumentValidator;
-use Document\DocumentServiceInterface;
+use Application\DTO\ApiRequest;
+use Application\DTO\ApiResponse;
+use Application\DTO\Document;
+use Application\Validator\UpdateRequestValidator;
+use Document\Exception\DocumentNotFoundException;
+use Document\Exception\LogicException;
+use Document\Service\DocumentService;
 use OpenApi\Annotations as OA;
 use Phalcon\Annotations\Annotation as Get;
 use Phalcon\Annotations\Annotation as Patch;
@@ -21,35 +26,8 @@ class DocumentController extends Base
 {
     private const PAGE_DEFAULT = 1;
     private const PER_PAGE_DEFAULT = 20;
-    /**
-     * @var DocumentServiceInterface
-     */
-    private $documentService;
 
-    /**
-     * @var DocumentValidator
-     */
-    private $documentValidator;
-
-    /**
-     * @return DocumentController
-     */
-    public function setDocumentService(DocumentServiceInterface $documentService): self
-    {
-        $this->documentService = $documentService;
-
-        return $this;
-    }
-
-    /**
-     * @return DocumentController
-     */
-    public function setDocumentValidator(DocumentValidator $documentValidator): self
-    {
-        $this->documentValidator = $documentValidator;
-
-        return $this;
-    }
+    private const OWNER_ID = 'f5e08ec7-8a56-e311-8719-0025906126df';
 
     /**
      * Fetch documents.
@@ -142,6 +120,10 @@ class DocumentController extends Base
      * @Get(
      *     '/document/{id:[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}}'
      * )
+     *
+     * @param string $id
+     *
+     * @return Response
      */
     public function fetchDocumentAction(string $id): Response
     {
@@ -175,8 +157,15 @@ class DocumentController extends Base
      */
     public function createDocumentAction(): Response
     {
+        /** @var DocumentService $documentService */
+        $documentService = $this->getDI()->get(DocumentService::class);
+
+        /** @var \Document\Entity\Document $document */
+        $document = $documentService->createDocument(self::OWNER_ID, null);
+
         $response = new Response();
-        $response->setJsonContent([__METHOD__]);
+        $response->setStatusCode(201, 'Created');
+        $response->setJsonContent(ApiResponse::buildFromEntity($document));
 
         return $response;
     }
@@ -202,11 +191,38 @@ class DocumentController extends Base
      * @Patch(
      *      '/document/{id:[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}}'
      * )
+     *
+     * @param string $id
+     *
+     * @return Response
      */
     public function updateDocumentAction(string $id): Response
     {
+        /** @var DocumentService $documentService */
+        $documentService = $this->getDI()->get(DocumentService::class);
         $response = new Response();
-        $response->setJsonContent(['id' => $id]);
+
+        $rawData = $this->request->getJsonRawBody(true);
+        $requestValidator = new UpdateRequestValidator();
+        if (!$requestValidator->isValid($rawData)) {
+            $response->setStatusCode(400, 'Bad request');
+
+            return  $response;
+        }
+
+        $request = ApiRequest::buildFromRequest($rawData['document']);
+
+        try {
+            /** @var \Document\Entity\Document $document */
+            $document = $documentService->updateDocument(self::OWNER_ID, $id, $request->document->payload);
+            $response->setJsonContent(ApiResponse::buildFromEntity($document));
+        } catch (DocumentNotFoundException $ne) {
+            $response->setStatusCode(404, 'Not found');
+        } catch (LogicException $le) {
+            $response->setStatusCode(503, 'Service unavailable');
+        } catch (\Exception $e) {
+            $response->setStatusCode(500, 'Internal server error');
+        }
 
         return $response;
     }

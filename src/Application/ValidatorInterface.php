@@ -11,6 +11,10 @@ interface ValidatorInterface
 {
     /**
      * Validate data structure.
+     *
+     * @param mixed $data
+     *
+     * @return bool
      */
-    public function isValid(object $object): bool;
+    public function isValid($data): bool;
 }

@@ -24,7 +24,7 @@ class Document
      *
      * @var string
      */
-    private $id;
+    public $id;
 
     /**
      * @OA\Property(
@@ -34,7 +34,7 @@ class Document
      *
      * @var string
      */
-    private $status;
+    public $status;
 
     /**
      * @OA\Property(
@@ -42,9 +42,9 @@ class Document
      *     title="Payload"
      * )
      *
-     * @var mixed
+     * @var string|null
      */
-    private $payload;
+    public $payload;
 
     /**
      * @OA\Property(
@@ -54,7 +54,7 @@ class Document
      *
      * @var string
      */
-    private $createAt;
+    public $createAt;
 
     /**
      *  @OA\Property(
@@ -62,7 +62,31 @@ class Document
      *     title="ModifyAt"
      * )
      *
-     * @var string
+     * @var string|null
      */
-    private $modifyAt;
+    public $modifyAt;
+
+    /**
+     * Document constructor.
+     */
+    public function __construct()
+    {
+    }
+
+    /**
+     * @param \Document\Entity\Document $entity
+     *
+     * @return Document
+     */
+    public static function buildFromEntity(\Document\Entity\Document $entity): self
+    {
+        $doc = new self();
+        $doc->id = $entity->getId();
+        $doc->status = $entity->getStatus();
+        $doc->payload =  $entity->getPayload();
+        $doc->createAt = $entity->getCrateAt()->format('c');
+        $doc->modifyAt = $entity->getModifyAt()->format('c');
+
+        return $doc;
+    }
 }

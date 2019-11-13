@@ -14,7 +14,7 @@ class ErrorController extends Base
     public function http404Action(): Response
     {
         $response = new Response();
-        $response->setJsonContent(['404']);
+        $response->setStatusCode(404, 'Not Found');
 
         return $response;
     }
