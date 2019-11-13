@@ -6,7 +6,7 @@ namespace Application\Controller;
 
 use Application\DTO\ApiRequest;
 use Application\DTO\ApiResponse;
-use Application\DTO\Document;
+use Application\DTO\ApiResponsePagination;
 use Application\Validator\UpdateRequestValidator;
 use Document\Exception\DocumentNotFoundException;
 use Document\Exception\LogicException;
@@ -69,6 +69,8 @@ class DocumentController extends Base
      * @Get(
      *     '/document/'
      * )
+     *
+     * @return Response
      */
     public function fetchDocumentsAction(): Response
     {
@@ -80,11 +82,28 @@ class DocumentController extends Base
         }
 
         if ($perPage <= 0) {
-            $page = self::PER_PAGE_DEFAULT;
+            $perPage = self::PER_PAGE_DEFAULT;
         }
 
+        /** @var DocumentService $documentService */
+        $documentService = $this->getDI()->get(DocumentService::class);
         $response = new Response();
-        $response->setJsonContent(['page' => $page, 'perPage' => $perPage]);
+
+        try {
+            $map = $documentService->fetchDocuments(self::OWNER_ID, $page, $perPage);
+            $response->setJsonContent(ApiResponsePagination::buildFromCollection(
+                $map->get('collection'),
+                $page,
+                $perPage,
+                $map->get('total')
+            ));
+        } catch (DocumentNotFoundException $ne) {
+            $response->setStatusCode(404, 'Not found');
+        } catch (LogicException $le) {
+            $response->setStatusCode(503, 'Service unavailable');
+        } catch (\Exception $e) {
+            $response->setStatusCode(500, 'Internal server error');
+        }
 
         return $response;
     }
@@ -127,8 +146,21 @@ class DocumentController extends Base
      */
     public function fetchDocumentAction(string $id): Response
     {
+        /** @var DocumentService $documentService */
+        $documentService = $this->getDI()->get(DocumentService::class);
         $response = new Response();
-        $response->setJsonContent(['id' => $id]);
+
+        try {
+            /** @var \Document\Entity\Document $document */
+            $document = $documentService->fetchDocument(self::OWNER_ID, $id);
+            $response->setJsonContent(ApiResponse::buildFromEntity($document));
+        } catch (DocumentNotFoundException $ne) {
+            $response->setStatusCode(404, 'Not found');
+        } catch (LogicException $le) {
+            $response->setStatusCode(503, 'Service unavailable');
+        } catch (\Exception $e) {
+            $response->setStatusCode(500, 'Internal server error');
+        }
 
         return $response;
     }
@@ -248,11 +280,27 @@ class DocumentController extends Base
      * @Post(
      *      '/document/{id:[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}}/publish'
      * )
+     *
+     * @param string $id
+     *
+     * @return Response
      */
     public function publishDocumentAction(string $id): Response
     {
+        /** @var DocumentService $documentService */
+        $documentService = $this->getDI()->get(DocumentService::class);
         $response = new Response();
-        $response->setJsonContent(['id' => $id]);
+        try {
+            /** @var \Document\Entity\Document $document */
+            $document = $documentService->publishDocument(self::OWNER_ID, $id);
+            $response->setJsonContent(ApiResponse::buildFromEntity($document));
+        } catch (DocumentNotFoundException $ne) {
+            $response->setStatusCode(404, 'Not found');
+        } catch (LogicException $le) {
+            $response->setStatusCode(503, 'Service unavailable');
+        } catch (\Exception $e) {
+            $response->setStatusCode(500, 'Internal server error');
+        }
 
         return $response;
     }

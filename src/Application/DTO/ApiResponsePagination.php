@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Application\DTO;
 
+use Ds\Vector;
 use OpenApi\Annotations as OA;
 
 /**
@@ -23,23 +24,43 @@ class ApiResponsePagination
      *
      * @var array
      */
-    private $document = [];
+    public $document = [];
 
     /**
      * @OA\Property()
      *
      * @var Pagination
      */
-    private $pagination;
+    public $pagination;
 
     /**
      * ApiResponsePagination constructor.
      *
-     * @param Document $document
+     * @param array      $documentCollection
+     * @param Pagination $pagination
      */
-    public function __construct(array $document, Pagination $pagination)
+    public function __construct(array $documentCollection, Pagination $pagination)
     {
-        $this->document = $document;
+        $this->document = $documentCollection;
         $this->pagination = $pagination;
+    }
+
+    /**
+     * @param Vector $collection
+     * @param int    $page
+     * @param int    $perPage
+     * @param int    $total
+     *
+     * @return ApiResponsePagination
+     */
+    public static function buildFromCollection(Vector $collection, int $page, int $perPage, int $total): self
+    {
+        $documents = [];
+
+        $collection->map(function ($item) use (&$documents) {
+            $documents[] = Document::buildFromEntity($item);
+        });
+
+        return new self($documents, new Pagination($page, $perPage, $total));
     }
 }

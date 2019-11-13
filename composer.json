@@ -12,9 +12,11 @@
         "php": "~7.3.0",
         "ext-json": "*",
         "ext-phalcon": "~3.4.0",
+        "ext-ds": "*",
         "zircote/swagger-php": "~3.0.0",
         "doctrine/migrations": "^2.1",
-        "ramsey/uuid": "^3.8"
+        "ramsey/uuid": "^3.8",
+        "php-ds/php-ds": "^1.2"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.16",

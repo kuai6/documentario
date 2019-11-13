@@ -23,7 +23,7 @@ class Pagination
      *
      * @var int
      */
-    private $page;
+    public $page;
 
     /**
      * @OA\Property(
@@ -33,7 +33,7 @@ class Pagination
      *
      * @var int
      */
-    private $perPage;
+    public $perPage;
 
     /**
      * @OA\Property(
@@ -43,10 +43,14 @@ class Pagination
      *
      * @var int
      */
-    private $total;
+    public $total;
 
     /**
      * Pagination constructor.
+     *
+     * @param int $page
+     * @param int $perPage
+     * @param int $total
      */
     public function __construct(int $page, int $perPage, int $total)
     {

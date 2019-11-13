@@ -37,7 +37,7 @@ class ApiResponse
      *
      * @return ApiResponse
      */
-    public static function buildFromEntity(\Document\Entity\Document $entity)
+    public static function buildFromEntity(\Document\Entity\Document $entity): self
     {
         return new self(Document::buildFromEntity($entity));
     }

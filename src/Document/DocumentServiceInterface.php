@@ -6,6 +6,7 @@ namespace Document;
 
 use Document\Exception\DocumentNotFoundException;
 use Document\Exception\LogicException;
+use Ds\Map;
 
 /**
  * Interface DocumentServiceInterface.
@@ -44,26 +45,26 @@ interface DocumentServiceInterface
      * Publish existing document.
      *
      * @param string $ownerId
-     * @param string $id
+     * @param string $documentId
      *
      * @return DocumentInterface
      *
      * @throws DocumentNotFoundException
      * @throws LogicException
      */
-    public function publishDocument(string $ownerId, string $id): DocumentInterface;
+    public function publishDocument(string $ownerId, string $documentId): DocumentInterface;
 
     /**
      * Fetch existing document.
      *
      * @param string $ownerId
-     * @param string $id
+     * @param string $documentId
      *
      * @return DocumentInterface
      *
      * @throws DocumentNotFoundException
      */
-    public function fetchDocument(string $ownerId, string $id): DocumentInterface;
+    public function fetchDocument(string $ownerId, string $documentId): DocumentInterface;
 
     /**
      * Fetch documents collection.
@@ -72,7 +73,7 @@ interface DocumentServiceInterface
      * @param int    $page
      * @param int    $limit
      *
-     * @return array
+     * @return Map[total, collection]
      */
-    public function fetchDocuments(string $ownerId, int $page = 1, int $limit = 20): array;
+    public function fetchDocuments(string $ownerId, int $page = 1, int $limit = 20): Map;
 }

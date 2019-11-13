@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Document;
 
 use Document\Exception\PersistenceException;
+use Ds\Vector;
 
 /**
  * Interface DocumentRepositoryInterface.
@@ -39,7 +40,16 @@ interface DocumentRepositoryInterface
      * @param int    $limit
      * @param int    $offset
      *
-     * @return array
+     * @return Vector
      */
-    public function fetchAllByOwnerId(string $ownerId, int $limit, int $offset): array;
+    public function fetchAllByOwnerId(string $ownerId, int $limit, int $offset): Vector;
+
+    /**
+     * Get total documents count.
+     *
+     * @param string $ownerId
+     *
+     * @return int
+     */
+    public function getTotalByOwnerId(string $ownerId): int;
 }

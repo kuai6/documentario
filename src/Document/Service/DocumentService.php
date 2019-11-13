@@ -11,6 +11,7 @@ use Document\Entity\Document;
 use Document\Exception\DocumentNotFoundException;
 use Document\Exception\LogicException;
 use Document\Exception\PersistenceException;
+use Ds\Map;
 
 /**
  * Class Document.
@@ -81,7 +82,7 @@ class DocumentService implements DocumentServiceInterface
 
             return $this->repository->save($document);
         } catch (PersistenceException $pe) {
-            throw new LogicException('Error occurs while update document', 503, $pe);
+            throw new LogicException('Error occurs while update document', 0, $pe);
         }
     }
 
@@ -89,13 +90,27 @@ class DocumentService implements DocumentServiceInterface
      * Publish existing document.
      *
      * @param string $ownerId
-     * @param string $id
+     * @param string $documentId
      *
      * @return DocumentInterface
+     *
+     * @throws \Exception
      */
-    public function publishDocument(string $ownerId, string $id): DocumentInterface
+    public function publishDocument(string $ownerId, string $documentId): DocumentInterface
     {
-        // TODO: Implement publishDocument() method.
+        try {
+            $document = $this->fetchDocument($ownerId, $documentId);
+            if ($document->getStatus() === Document::STATUS_DRAFT) {
+                $document->setStatus(Document::STATUS_PUBLISHED);
+                $document->setModifyAt(new \DateTime());
+
+                return $this->repository->save($document);
+            }
+
+            return $document;
+        } catch (PersistenceException $pe) {
+            throw new LogicException('Error occurs while publish document', 0, $pe);
+        }
     }
 
     /**
@@ -105,26 +120,31 @@ class DocumentService implements DocumentServiceInterface
      * @param int    $page
      * @param int    $limit
      *
-     * @return array
+     * @return Map
      */
-    public function fetchDocuments(string $ownerId, int $page = 1, int $limit = 20): array
+    public function fetchDocuments(string $ownerId, int $page = 1, int $limit = 20): Map
     {
-        // TODO: Implement fetchDocuments() method.
+        $total = $this->repository->getTotalByOwnerId($ownerId);
+
+        $offset = $limit * ($page-1);
+        $collection =  $this->repository->fetchAllByOwnerId($ownerId, $limit, $offset);
+
+        return new Map(['total' => $total, 'collection' => $collection]);
     }
 
     /**
      * Fetch existing document.
      *
      * @param string $ownerId
-     * @param string $id
+     * @param string $documentId
      *
      * @return DocumentInterface
      *
      * @throws DocumentNotFoundException
      */
-    public function fetchDocument(string $ownerId, string $id): DocumentInterface
+    public function fetchDocument(string $ownerId, string $documentId): DocumentInterface
     {
-        $document = $this->repository->fetchByOwnerIdAndId($ownerId, $id);
+        $document = $this->repository->fetchByOwnerIdAndId($ownerId, $documentId);
         if ($document === null) {
             throw new DocumentNotFoundException('Document not found');
         }
