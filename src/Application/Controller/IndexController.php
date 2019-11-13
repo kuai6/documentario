@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Application\Controller;
 
 use Phalcon\Annotations\Annotation as Get;
+use Phalcon\Annotations\Annotation as Post;
 use Phalcon\Http\Response;
 
 /**
@@ -19,7 +20,7 @@ class IndexController extends Base
      *     '/'
      * )
      */
-    public function indexAction()
+    public function indexAction(): Response
     {
         $response = new Response();
         $response->setJsonContent(['haha']);
@@ -28,14 +29,14 @@ class IndexController extends Base
     }
 
     /**
-     * @Get(
-     *     '/document'
+     * @Post(
+     *     '/login'
      * )
      */
-    public function documentAction()
+    public function loginAction(): Response
     {
         $response = new Response();
-        $response->setJsonContent(['haha2']);
+        $response->setJsonContent(['login']);
 
         return $response;
     }

@@ -7,7 +7,16 @@ namespace Application\Controller;
 use Phalcon\Mvc\Controller;
 
 /**
- * Class Base.
+ * @OA\Info(
+ *     description="This service provide simple api to store and edit json documents",
+ *     version="1.0.0",
+ *     title="Documentario",
+ *     @OA\Contact(
+ *         email="kuai6@ya.ru"
+ *     )
+ * )
+ *
+ * Class Base
  */
 class Base extends Controller
 {

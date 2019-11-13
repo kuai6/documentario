@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Application\Controller;
@@ -6,8 +7,7 @@ namespace Application\Controller;
 use Phalcon\Http\Response;
 
 /**
- * Class ErrorController
- * @package Application\Controller
+ * Class ErrorController.
  */
 class ErrorController extends Base
 {
