@@ -15,4 +15,7 @@ Then open url http://127.0.0.1 in your browser and try API
 ### TODO list
 * Authorization
 * Entity hydrations
+* Logs
+* CI
+* Tests
 
