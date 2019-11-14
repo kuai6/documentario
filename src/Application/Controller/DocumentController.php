@@ -101,6 +101,7 @@ class DocumentController extends Base
 
         try {
             $map = $documentService->fetchDocuments(self::OWNER_ID, $page, $perPage);
+
             return $this->response->setJsonContent(ApiResponsePagination::buildFromCollection(
                 $map->get('collection'),
                 $page,
@@ -168,6 +169,7 @@ class DocumentController extends Base
         try {
             /** @var Document $document */
             $document = $documentService->fetchDocument(self::OWNER_ID, $id);
+
             return $this->response->setJsonContent(ApiResponse::buildFromEntity($document));
         } catch (DocumentNotFoundException $ne) {
             return $this->response->setStatusCode(404, 'Not found');
@@ -176,7 +178,6 @@ class DocumentController extends Base
         } catch (Exception $e) {
             return $this->response->setStatusCode(500, 'Internal server error');
         }
-
     }
 
     /**
@@ -210,6 +211,7 @@ class DocumentController extends Base
         $document = $documentService->createDocument(self::OWNER_ID, null);
 
         $this->response->setStatusCode(201, 'Created');
+
         return  $this->response->setJsonContent(ApiResponse::buildFromEntity($document));
     }
 
@@ -280,6 +282,7 @@ class DocumentController extends Base
         try {
             /** @var Document $document */
             $document = $documentService->updateDocument(self::OWNER_ID, $id, $request->document->payload);
+
             return $this->response->setJsonContent(ApiResponse::buildFromEntity($document));
         } catch (DocumentStatusException $se) {
             return $this->response->setStatusCode(400, 'Bad request');
@@ -344,6 +347,7 @@ class DocumentController extends Base
         try {
             /** @var Document $document */
             $document = $documentService->publishDocument(self::OWNER_ID, $id);
+
             return $this->response->setJsonContent(ApiResponse::buildFromEntity($document));
         } catch (DocumentNotFoundException $ne) {
             return $this->response->setStatusCode(404, 'Not found');

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Application\Controller;
 
-use Phalcon\Mvc\Controller;
 use OpenApi\Annotations as OA;
+use Phalcon\Mvc\Controller;
 
 /**
  * @OA\Info(
@@ -20,7 +20,6 @@ use OpenApi\Annotations as OA;
  *     url="http://127.0.0.1:1080/api/v1",
  *     description="api"
  * )
- *
  *
  * Class Base
  */

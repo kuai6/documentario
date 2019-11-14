@@ -46,7 +46,7 @@ try {
         return $router;
     });
 
-    $di->set('preflight', function() {
+    $di->set('preflight', function () {
         return new PreFlightListener();
     }, true);
 
@@ -54,7 +54,7 @@ try {
         'dispatcher',
         function () use ($di) {
             $evManager = $di->getShared('eventsManager');
-            $evManager->attach("dispatch:beforeExecuteRoute", $di->get('preflight'));
+            $evManager->attach('dispatch:beforeExecuteRoute', $di->get('preflight'));
             $evManager->attach(
                 'dispatch:beforeException',
                 /**
@@ -103,8 +103,6 @@ try {
 
         return $factory->create($container);
     });
-
-
 
     /**
      * Handle the request.

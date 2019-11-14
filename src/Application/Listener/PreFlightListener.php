@@ -1,30 +1,29 @@
 <?php
-declare(strict_types=1);
 
+declare(strict_types=1);
 
 namespace Application\Listener;
 
-use Phalcon\Events\Event;
 use Phalcon\Di\Injectable;
+use Phalcon\Events\Event;
 use Phalcon\Http\Request;
 use Phalcon\Mvc\Dispatcher;
 
 /**
- * Class PreFlightListener
- * @package Application\Listener
+ * Class PreFlightListener.
  */
 class PreFlightListener extends Injectable
 {
     /**
-     * @param Event $event
+     * @param Event      $event
      * @param Dispatcher $dispatcher
      */
-    public function beforeExecuteRoute(Event $event, Dispatcher $dispatcher) {
+    public function beforeExecuteRoute(Event $event, Dispatcher $dispatcher)
+    {
         $di = $dispatcher->getDI();
         $request = $di->get('request');
         $response = $di->get('response');
         if ($this->isCorsRequest($request)) {
-
             $response
                 ->setHeader('Access-Control-Allow-Origin', $this->getOrigin($request))
                 ->setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE')
@@ -33,12 +32,14 @@ class PreFlightListener extends Injectable
         }
 
         if ($this->isPreflightRequest($request)) {
-            $response->setStatusCode(200, 'OK')->send(); exit;
+            $response->setStatusCode(200, 'OK')->send();
+            exit;
         }
     }
 
     /**
      * @param Request $request
+     *
      * @return bool
      */
     public function isCorsRequest(Request $request)
@@ -48,6 +49,7 @@ class PreFlightListener extends Injectable
 
     /**
      * @param Request $request
+     *
      * @return bool
      */
     public function isPreflightRequest(Request $request)
@@ -59,6 +61,7 @@ class PreFlightListener extends Injectable
 
     /**
      * @param Request $request
+     *
      * @return bool
      */
     public function isSameHost(Request $request)
@@ -68,6 +71,7 @@ class PreFlightListener extends Injectable
 
     /**
      * @param Request $request
+     *
      * @return string
      */
     public function getSchemeAndHttpHost(Request $request)
@@ -77,6 +81,7 @@ class PreFlightListener extends Injectable
 
     /**
      * @param Request $request
+     *
      * @return string
      */
     public function getOrigin(Request $request)
