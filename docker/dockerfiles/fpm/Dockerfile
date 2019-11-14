@@ -11,6 +11,9 @@ ENV WORKDIR="/srv/www"
 
 WORKDIR $WORKDIR
 
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
 
 EXPOSE 9000
 CMD ["php-fpm"]
