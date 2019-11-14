@@ -65,6 +65,14 @@ class DocumentController extends Base
      *             type="array",
      *             @OA\Items(ref="#/components/schemas/ApiResponsePagination")
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error"
+     *     ),
+     *     @OA\Response(
+     *         response=503,
+     *         description="Service unavailable"
      *     )
      * )
      *
@@ -135,6 +143,14 @@ class DocumentController extends Base
      *     @OA\Response(
      *         response=404,
      *         description="Document not found"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error"
+     *     ),
+     *     @OA\Response(
+     *         response=503,
+     *         description="Service unavailable"
      *     )
      * )
      *
@@ -175,8 +191,8 @@ class DocumentController extends Base
      *     summary="Create document",
      *     operationId="createDocument",
      *     @OA\Response(
-     *         response=200,
-     *         description="successful operation",
+     *         response=201,
+     *         description="Created",
      *         @OA\JsonContent(ref="#/components/schemas/ApiResponse")
      *     ),
      *     @OA\Response(
@@ -211,14 +227,29 @@ class DocumentController extends Base
      *     path="/document/{id}",
      *     summary="Update existing document",
      *     operationId="updateDocument",
+     *     @OA\RequestBody(
+     *          ref="#/components/schemas/ApiRequest"
+     *     ),
      *     @OA\Response(
      *         response=200,
      *         description="successful operation",
      *         @OA\JsonContent(ref="#/components/schemas/ApiResponse")
      *     ),
      *     @OA\Response(
-     *         response=503,
+     *         response=400,
+     *         description="Bad request"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Not Found"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
      *         description="Internal server error"
+     *     ),
+     *     @OA\Response(
+     *         response=503,
+     *         description="Service unavailable"
      *     )
      * )
      *
@@ -274,8 +305,16 @@ class DocumentController extends Base
      *         @OA\JsonContent(ref="#/components/schemas/ApiResponse")
      *     ),
      *     @OA\Response(
-     *         response=503,
+     *         response=404,
+     *         description="Not Found"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
      *         description="Internal server error"
+     *     ),
+     *     @OA\Response(
+     *         response=503,
+     *         description="Service unavailable"
      *     )
      * )
      *
