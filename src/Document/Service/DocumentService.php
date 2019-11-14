@@ -9,6 +9,7 @@ use Document\DocumentRepositoryInterface;
 use Document\DocumentServiceInterface;
 use Document\Entity\Document;
 use Document\Exception\DocumentNotFoundException;
+use Document\Exception\DocumentStatusException;
 use Document\Exception\LogicException;
 use Document\Exception\PersistenceException;
 use Ds\Map;
@@ -70,6 +71,7 @@ class DocumentService implements DocumentServiceInterface
      * @return DocumentInterface
      *
      * @throws DocumentNotFoundException
+     * @throws DocumentStatusException
      * @throws LogicException
      * @throws \Exception
      */
@@ -77,6 +79,10 @@ class DocumentService implements DocumentServiceInterface
     {
         try {
             $document = $this->fetchDocument($ownerId, $documentId);
+            if ($document->getStatus() === Document::STATUS_PUBLISHED) {
+                throw new DocumentStatusException('Document already published');
+            }
+
             $document->setPayload($payload);
             $document->setModifyAt(new \DateTime());
 

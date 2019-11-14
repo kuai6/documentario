@@ -39,10 +39,11 @@ class Document
     /**
      * @OA\Property(
      *     description="Document payload",
-     *     title="Payload"
+     *     title="Payload",
+     *     type="object"
      * )
      *
-     * @var string|null
+     * @var mixed
      */
     public $payload;
 

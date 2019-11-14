@@ -1,6 +1,7 @@
 <?php
 
 use Application\Di\Container;
+use Application\Listener\PreFlightListener;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Document\Di\Repository\DocumentRepositoryFactory;
@@ -45,11 +46,15 @@ try {
         return $router;
     });
 
+    $di->set('preflight', function() {
+        return new PreFlightListener();
+    }, true);
+
     $di->set(
         'dispatcher',
         function () use ($di) {
             $evManager = $di->getShared('eventsManager');
-
+            $evManager->attach("dispatch:beforeExecuteRoute", $di->get('preflight'));
             $evManager->attach(
                 'dispatch:beforeException',
                 /**
@@ -98,6 +103,8 @@ try {
 
         return $factory->create($container);
     });
+
+
 
     /**
      * Handle the request.

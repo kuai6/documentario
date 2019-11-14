@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Application\Controller;
 
 use Phalcon\Mvc\Controller;
+use OpenApi\Annotations as OA;
 
 /**
  * @OA\Info(
@@ -15,6 +16,11 @@ use Phalcon\Mvc\Controller;
  *         email="kuai6@ya.ru"
  *     )
  * )
+ * @OA\Server(
+ *     url="http://127.0.0.1:1080/api/v1",
+ *     description="api"
+ * )
+ *
  *
  * Class Base
  */

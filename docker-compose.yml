@@ -31,7 +31,7 @@ services:
         aliases:
           - nginx.mynet
   percona:
-    image: mysql:8
+    image: percona
     environment:
       MYSQL_ROOT_PASSWORD: Qwerty1!
       MYSQL_DATABASE: documents
@@ -41,6 +41,18 @@ services:
       mynet:
         aliases:
           - percona.mynet
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    ports:
+      - "80:8080"
+    networks:
+      mynet:
+        aliases:
+          - ui.mynet
+    volumes:
+      - ./public/openapi.yml:/app/openapi.yml
+    environment:
+      SWAGGER_JSON: /app/openapi.yml
 networks:
   mynet:
     external:
