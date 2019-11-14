@@ -1,4 +1,4 @@
-##The document stores and edit service
+## The document stores and edit service
 
 ### How to use 
 
