@@ -2,6 +2,7 @@
 
 use Application\Di\Container;
 use Application\Listener\PreFlightListener;
+use Application\Logger\StreamLogger;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Document\Di\Repository\DocumentRepositoryFactory;
@@ -11,6 +12,7 @@ use Document\Service\DocumentService;
 use Phalcon\Di\FactoryDefault;
 use Phalcon\Mvc\Application;
 use Phalcon\Mvc\Dispatcher;
+use Psr\Log\LoggerInterface;
 
 chdir(dirname(__DIR__));
 error_reporting(E_ALL);
@@ -91,6 +93,8 @@ try {
     $di->set('container', $container);
 
     $di->set(Connection::class, DriverManager::getConnection($config->database->toArray()));
+
+    $di->set(LoggerInterface::class, new StreamLogger('php://stdout'));
 
     $di->set(DocumentRepository::class, function () use ($container) {
         $factory = new DocumentRepositoryFactory();

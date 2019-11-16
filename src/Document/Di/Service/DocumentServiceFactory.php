@@ -6,8 +6,10 @@ namespace Document\Di\Service;
 
 use Document\Di\ContainerInterface;
 use Document\Di\FactoryInterface;
+use Document\DocumentRepositoryInterface;
 use Document\Repository\DocumentRepository;
 use Document\Service\DocumentService;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class DocumentServiceFactory.
@@ -21,8 +23,12 @@ class DocumentServiceFactory implements FactoryInterface
      */
     public function create(ContainerInterface $container)
     {
+        /** @var DocumentRepositoryInterface $repository */
         $repository = $container->get(DocumentRepository::class);
 
-        return new DocumentService($repository);
+        /** @var LoggerInterface $logger */
+        $logger = $container->get(LoggerInterface::class);
+
+        return new DocumentService($repository, $logger);
     }
 }
