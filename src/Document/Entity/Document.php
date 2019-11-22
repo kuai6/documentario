@@ -45,6 +45,16 @@ class Document implements DocumentInterface
     private $status;
 
     /**
+     * @var array []Document
+     */
+    private $versions = [];
+
+    /**
+     * @var string
+     */
+    private $parentId;
+
+    /**
      * Document constructor.
      */
     public function __construct()
@@ -148,5 +158,21 @@ class Document implements DocumentInterface
     public function setStatus(string $status)
     {
         $this->status = $status;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getParentId(): ?string
+    {
+        return $this->parentId;
+    }
+
+    /**
+     * @param string $parentId
+     */
+    public function setParentId(string $parentId)
+    {
+        $this->parentId = $parentId;
     }
 }

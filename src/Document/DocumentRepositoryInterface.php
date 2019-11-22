@@ -45,6 +45,18 @@ interface DocumentRepositoryInterface
     public function fetchAllByOwnerId(string $ownerId, int $limit, int $offset): Vector;
 
     /**
+     * Fetch collection of version specified documents.
+     *
+     * @param string $ownerId
+     * @param string $documentId
+     * @param int    $limit
+     * @param int    $offset
+     *
+     * @return Vector
+     */
+    public function fetchVersionsByOwnerIdAndDocumentId(string $ownerId, string $documentId, int $limit, int $offset): Vector;
+
+    /**
      * Get total documents count.
      *
      * @param string $ownerId
@@ -52,4 +64,14 @@ interface DocumentRepositoryInterface
      * @return int
      */
     public function getTotalByOwnerId(string $ownerId): int;
+
+    /**
+     * Fetch total document versions count.
+     *
+     * @param string $ownerId
+     * @param string $id
+     *
+     * @return int
+     */
+    public function getTotalVersionsByOwnerIdAndDocumentId(string $ownerId, string $id): int;
 }

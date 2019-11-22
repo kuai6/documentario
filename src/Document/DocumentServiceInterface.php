@@ -76,4 +76,16 @@ interface DocumentServiceInterface
      * @return Map[total, collection]
      */
     public function fetchDocuments(string $ownerId, int $page = 1, int $limit = 20): Map;
+
+    /**
+     * Fetch document versions.
+     *
+     * @param string $ownerId
+     * @param string $documentId
+     * @param int    $page
+     * @param int    $limit
+     *
+     * @return mixed
+     */
+    public function fetchDocumentVersions(string $ownerId, string $documentId, int $page = 1, int $limit = 20): Map;
 }

@@ -79,6 +79,7 @@ class DocumentRepository implements DocumentRepositoryInterface
                     'create_at' => ':create_at',
                     'modify_at' => ':modify_at',
                     'status'    => ':status',
+                    'parent_id' => ':parent_id',
                 ])
                 ->setParameters([
                     ':id'           => $id,
@@ -87,6 +88,7 @@ class DocumentRepository implements DocumentRepositoryInterface
                     ':create_at'    => $document->getCrateAt()->format('Y-m-d H:i:s'),
                     ':modify_at'    => $document->getModifyAt()->format('Y-m-d H:i:s'),
                     ':status'       => $document->getStatus(),
+                    ':parent_id'    => $document->getParentId(),
                 ])
                 ->execute();
             $this->connection->commit();
@@ -162,6 +164,7 @@ class DocumentRepository implements DocumentRepositoryInterface
                 ->from('document')
                 ->where('id = :id')
                 ->andWhere('owner_id = :owner_id')
+                ->andWhere('parent_id is null')
                 ->setParameters([
                     ':id' => $id,
                     ':owner_id' => $ownerId,
@@ -203,7 +206,8 @@ class DocumentRepository implements DocumentRepositoryInterface
             $qb = $this->connection->createQueryBuilder();
             $result = $qb->select('*')
                 ->from('document')
-                ->andWhere('owner_id = :owner_id')
+                ->where('owner_id = :owner_id')
+                ->andWhere('parent_id is null')
                 ->setParameters([
                     ':owner_id' => $ownerId,
                 ])
@@ -248,9 +252,86 @@ class DocumentRepository implements DocumentRepositoryInterface
         $qb = $this->connection->createQueryBuilder();
         $result = $qb->select('count(id)')
             ->from('document')
-            ->andWhere('owner_id = :owner_id')
+            ->where('owner_id = :owner_id')
+            ->andWhere('parent_id is null')
             ->setParameters([
                 ':owner_id' => $ownerId,
+            ])
+            ->execute()->fetchColumn();
+
+        return (int) $result;
+    }
+
+    /**
+     * Fetch collection of version specified documents.
+     *
+     * @param string $ownerId
+     * @param string $documentId
+     * @param int    $limit
+     * @param int    $offset
+     *
+     * @return Vector
+     */
+    public function fetchVersionsByOwnerIdAndDocumentId(string $ownerId, string $documentId, int $limit, int $offset): Vector
+    {
+        $documents = new Vector();
+        try {
+            $qb = $this->connection->createQueryBuilder();
+            $result = $qb->select('*')
+                ->from('document')
+                ->andWhere('owner_id = :owner_id')
+                ->andWhere('parent_id = :parent_id')
+                ->setParameters([
+                    ':owner_id' => $ownerId,
+                    ':parent_id' => $documentId,
+                ])
+                ->orderBy('create_at', 'DESC')
+                ->setFirstResult($offset)
+                ->setMaxResults($limit)
+                ->execute()->fetchAll(FetchMode::ASSOCIATIVE);
+            if ($result === false) {
+                return $documents;
+            }
+
+            foreach ($result as $item) {
+                //@TODO use hydrators to avoid copy-paste
+                $doc = new Document();
+                $doc->setId($item['id']);
+                $doc->setOwnerId($item['owner_id']);
+                if ($item['payload'] !== null) {
+                    $doc->setPayload(json_decode($item['payload']));
+                }
+                $doc->setCrateAt(new \DateTime($item['create_at']));
+                $doc->setModifyAt(new \DateTime($item['modify_at']));
+                $doc->setStatus($item['status']);
+
+                $documents->push($doc);
+            }
+
+            return $documents;
+        } catch (\Exception $e) {
+            throw new PersistenceException("Can't fetch documents", 0, $e);
+        }
+    }
+
+    /**
+     * Fetch total document versions count.
+     *
+     * @param string $ownerId
+     * @param string $id
+     *
+     * @return int
+     */
+    public function getTotalVersionsByOwnerIdAndDocumentId(string $ownerId, string $id): int
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $result = $qb->select('count(id)')
+            ->from('document')
+            ->andWhere('owner_id = :owner_id')
+            ->andWhere('parent_id = :parent_id')
+            ->setParameters([
+                ':owner_id' => $ownerId,
+                ':parent_id' => $id,
             ])
             ->execute()->fetchColumn();
 

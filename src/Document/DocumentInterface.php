@@ -68,4 +68,16 @@ interface DocumentInterface
      * @param string $status
      */
     public function setStatus(string $status);
+
+    /**
+     * @return string|null
+     */
+    public function getParentId(): ?string;
+
+    /**
+     * @param string $parentId
+     *
+     * @return mixed
+     */
+    public function setParentId(string $parentId);
 }

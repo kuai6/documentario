@@ -99,12 +99,16 @@ class DocumentService implements DocumentServiceInterface
         ]);
         try {
             $document = $this->fetchDocument($ownerId, $documentId);
+
             if ($document->getStatus() === Document::STATUS_PUBLISHED) {
                 $this->logger->error('Can\'t update document with id {document_id}: document already published', [
                     'document_id' => $documentId,
                 ]);
                 throw new DocumentStatusException('Can\'t update document: document already published');
             }
+
+            // creates historical entry
+            $this->createVersionFromDocument($document);
 
             $document->setPayload($payload);
             $document->setModifyAt(new \DateTime());
@@ -190,5 +194,52 @@ class DocumentService implements DocumentServiceInterface
         }
 
         return $document;
+    }
+
+    /**
+     * Fetch document versions.
+     *
+     * @param string $ownerId
+     * @param string $documentId
+     * @param int    $page
+     * @param int    $limit
+     *
+     * @return mixed
+     */
+    public function fetchDocumentVersions(string $ownerId, string $documentId, int $page = 1, int $limit = 20): Map
+    {
+        $total = $this->repository->getTotalVersionsByOwnerIdAndDocumentId($ownerId, $documentId);
+
+        $offset = $limit * ($page-1);
+
+        $collection =  $this->repository->fetchVersionsByOwnerIdAndDocumentId($ownerId, $documentId, $limit, $offset);
+
+        return new Map(['total' => $total, 'collection' => $collection]);
+    }
+
+    /**
+     * Create new version from existent document.
+     *
+     * @param DocumentInterface $document
+     *
+     * @return DocumentInterface
+     */
+    private function createVersionFromDocument(DocumentInterface $document): DocumentInterface
+    {
+        $document = new Document();
+        $document->setOwnerId($document->getOwnerId());
+        $document->setStatus($document->getStatus());
+        $document->setPayload($document->getPayload());
+        $document->setParentId($document->getId());
+
+        try {
+            return $this->repository->save($document);
+        } catch (PersistenceException $pe) {
+            $this->logger->error($pe);
+            throw new LogicException('Error occurs while save document', 0, $pe);
+        } catch (\Exception $e) {
+            $this->logger->error($e);
+            throw new LogicException("Can't create new document", 0, $e);
+        }
     }
 }

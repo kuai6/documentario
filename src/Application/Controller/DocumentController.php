@@ -13,6 +13,7 @@ use Document\Exception\DocumentNotFoundException;
 use Document\Exception\DocumentStatusException;
 use Document\Exception\LogicException;
 use Document\Service\DocumentService;
+use Ds\Map;
 use Exception;
 use OpenApi\Annotations as OA;
 use Phalcon\Annotations\Annotation as Get;
@@ -349,6 +350,105 @@ class DocumentController extends Base
             $document = $documentService->publishDocument(self::OWNER_ID, $id);
 
             return $this->response->setJsonContent(ApiResponse::buildFromEntity($document));
+        } catch (DocumentNotFoundException $ne) {
+            return $this->response->setStatusCode(404, 'Not found');
+        } catch (LogicException $le) {
+            return $this->response->setStatusCode(503, 'Service unavailable');
+        } catch (Exception $e) {
+            return $this->response->setStatusCode(500, 'Internal server error');
+        }
+    }
+
+    /**
+     * Fetch document versions.
+     *
+     * @OA\Get(
+     *     path="/document/{id}/versions",
+     *     summary="Returns collection of document versions",
+     *     operationId="fetchDocumentVersions",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="The id of document",
+     *         required=true,
+     *         allowEmptyValue=false,
+     *         @OA\Schema(
+     *            type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="Page number for display results",
+     *         required=false,
+     *         allowEmptyValue=true,
+     *         @OA\Schema(
+     *            type="integer"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="perPage",
+     *         in="query",
+     *         description="Per page documents count",
+     *         required=false,
+     *         allowEmptyValue=true,
+     *         @OA\Schema(
+     *            type="integer"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="successful operation",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(ref="#/components/schemas/ApiResponsePagination")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error"
+     *     ),
+     *     @OA\Response(
+     *         response=503,
+     *         description="Service unavailable"
+     *     )
+     * )
+     *
+     * @Get(
+     *      '/document/{id:[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}}/versions'
+     * )
+     *
+     * @param string $id
+     *
+     * @return Response
+     */
+    public function documentVersions(string $id): Response
+    {
+        $page = $this->request->getQuery('page', ['int!'], self::PAGE_DEFAULT);
+        $perPage = $this->request->getQuery('perPage', ['int!'], self::PER_PAGE_DEFAULT);
+
+        if ($page <= 0) {
+            $page = self::PAGE_DEFAULT;
+        }
+
+        if ($perPage <= 0) {
+            $perPage = self::PER_PAGE_DEFAULT;
+        }
+
+        /** @var DocumentService $documentService */
+        $documentService = $this->getDI()->get(DocumentService::class);
+
+        try {
+            /** @var Map $map */
+            $map = $documentService->fetchDocumentVersions(self::OWNER_ID, $id);
+            var_dump($map);
+
+            return $this->response->setJsonContent(ApiResponsePagination::buildFromCollection(
+                $map->get('collection'),
+                $page,
+                $perPage,
+                $map->get('total')
+            ));
         } catch (DocumentNotFoundException $ne) {
             return $this->response->setStatusCode(404, 'Not found');
         } catch (LogicException $le) {
