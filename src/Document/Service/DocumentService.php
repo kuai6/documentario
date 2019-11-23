@@ -54,7 +54,7 @@ class DocumentService implements DocumentServiceInterface
     public function createDocument(string $ownerId, ?string $payload, \DateTime $createDateTime = null): DocumentInterface
     {
         $this->logger->debug('Create document with payload {payload} for owner {owner_id} and create date {create_at}', [
-            'payload' => $payload,
+            'payload' => json_encode($payload),
             'owner_id' => $ownerId,
             'create_at' => $createDateTime,
         ]);
@@ -93,7 +93,7 @@ class DocumentService implements DocumentServiceInterface
     public function updateDocument(string $ownerId, string $documentId, $payload, \DateTime $updateDateTime = null): DocumentInterface
     {
         $this->logger->debug('Update document with payload {payload} for owner {owner_id} and update date {modify_at}', [
-            'payload' => $payload,
+            'payload' => json_encode($payload),
             'owner_id' => $ownerId,
             'modify_at' => $updateDateTime,
         ]);
@@ -226,14 +226,15 @@ class DocumentService implements DocumentServiceInterface
      */
     private function createVersionFromDocument(DocumentInterface $document): DocumentInterface
     {
-        $document = new Document();
-        $document->setOwnerId($document->getOwnerId());
-        $document->setStatus($document->getStatus());
-        $document->setPayload($document->getPayload());
-        $document->setParentId($document->getId());
+        $version = new Document();
+
+        $version->setOwnerId($document->getOwnerId());
+        $version->setStatus($document->getStatus());
+        $version->setPayload($document->getPayload());
+        $version->setParentId($document->getId());
 
         try {
-            return $this->repository->save($document);
+            return $this->repository->save($version);
         } catch (PersistenceException $pe) {
             $this->logger->error($pe);
             throw new LogicException('Error occurs while save document', 0, $pe);

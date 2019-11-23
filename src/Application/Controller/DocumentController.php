@@ -415,14 +415,14 @@ class DocumentController extends Base
      * )
      *
      * @Get(
-     *      '/document/{id:[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}}/versions'
+     *     '/document/{id:[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}}/versions'
      * )
      *
      * @param string $id
      *
      * @return Response
      */
-    public function documentVersions(string $id): Response
+    public function documentVersionsAction(string $id): Response
     {
         $page = $this->request->getQuery('page', ['int!'], self::PAGE_DEFAULT);
         $perPage = $this->request->getQuery('perPage', ['int!'], self::PER_PAGE_DEFAULT);
@@ -441,7 +441,6 @@ class DocumentController extends Base
         try {
             /** @var Map $map */
             $map = $documentService->fetchDocumentVersions(self::OWNER_ID, $id);
-            var_dump($map);
 
             return $this->response->setJsonContent(ApiResponsePagination::buildFromCollection(
                 $map->get('collection'),
